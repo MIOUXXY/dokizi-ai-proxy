@@ -4,7 +4,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.status(200).end();
     return;
   }
@@ -18,13 +18,21 @@ export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
 
   try {
-    const postData = JSON.stringify(req.body);
+    const apiKey = req.body.apiKey || process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      res.status(400).json({ error: 'API key not provided' });
+      return;
+    }
+
+    const { contents, ...restBody } = req.body;
+    const geminiBody = { contents, ...restBody };
+    const postData = JSON.stringify(geminiBody);
 
     const aiResponse = await new Promise((resolve, reject) => {
       const options = {
-        hostname: 'ai.replit.dev',
+        hostname: 'generativelanguage.googleapis.com',
         port: 443,
-        path: '/v1beta/models/gemini-2.5-flash:generateContent',
+        path: `/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
