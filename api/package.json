@@ -1,0 +1,9 @@
+{
+  "name": "dokizi-ai-proxy",
+  "version": "1.0.0",
+  "description": "DOKIZI AI Proxy for Gemini API",
+  "private": true,
+  "scripts": {
+    "build": "echo 'No build needed for Vercel Functions'"
+  }
+}
